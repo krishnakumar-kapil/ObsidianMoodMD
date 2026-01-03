@@ -1,151 +1,156 @@
 /* Obsidian Mood MD Styles */
 
+/* Main Container (applied to Sidebar View AND Code Block Element) */
 .mood-tracker-plugin-view {
-  padding: 20px;
+  padding: 10px;
   overflow-y: auto;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  width: 100% !important; /* Force full width */
+  display: block;
 }
 
+.mood-tracker-plugin-view * {
+  box-sizing: border-box;
+}
+
+/* Inner React Container */
 .mood-tracker-container {
-  max-width: 600px;
-  margin: 0 auto;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
-.header h1 {
-  font-size: 32px;
-  font-weight: 800;
-  margin-bottom: 5px;
-  color: var(--text-normal);
-}
-
-.header p {
-  font-size: 16px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-}
-
+/* Cards */
 .card {
-  background-color: var(--background-primary);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  background-color: var(--background-primary-alt);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--background-modifier-border);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Dark mode adjustment if needed, usually Obsidian handles vars */
-.theme-dark .card {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    width: 100%;
 }
 
 .card h2 {
-  font-size: 18px;
-  font-weight: 700;
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: var(--text-normal);
-}
-
-/* Mood Selector */
-.mood-selector {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.mood-btn {
-  background: transparent;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-  flex: 1;
-}
-
-.mood-btn:hover {
-  background-color: var(--background-secondary);
-}
-
-.mood-btn.selected {
-  background-color: var(--interactive-accent);
-  color: var(--text-on-accent);
-}
-
-.mood-btn .emoji {
-  font-size: 32px;
-  margin-bottom: 5px;
-}
-
-.mood-btn .label {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Forms */
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
   font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 5px;
-  color: var(--text-muted);
-}
-
-input[type="text"],
-input[type="number"],
-textarea {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid var(--background-modifier-border);
-  background-color: var(--background-secondary);
-  font-size: 16px;
-  color: var(--text-normal);
-  transition: border-color 0.2s;
-}
-
-input:focus,
-textarea:focus {
-  border-color: var(--interactive-accent);
-  outline: none;
-}
-
-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-/* Save Button */
-.save-btn {
-  background-color: var(--interactive-accent);
-  color: var(--text-on-accent);
-  border: none;
-  padding: 16px;
-  border-radius: 14px;
-  font-size: 18px;
   font-weight: 700;
+  margin: 0;
+  color: var(--text-normal);
+}
+
+.mood-value {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--interactive-accent);
+}
+
+/* Slider */
+.slider-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    flex-grow: 1; /* Allow it to grow */
+}
+
+.mood-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100% !important; /* Force full width */
+    display: block;
+    height: 12px;
+    border-radius: 6px;
+    background: var(--background-modifier-border);
+    outline: none;
+    opacity: 0.9;
+    transition: opacity .2s;
+    margin: 0;
+}
+
+.mood-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
   cursor: pointer;
-  transition: opacity 0.2s;
-  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  border: 2px solid var(--background-primary);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Emotions Grid */
+.emotions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    width: 100%;
+}
+
+.emotion-chip {
+    padding: 4px 10px;
+    border-radius: 16px;
+    border: 1px solid var(--background-modifier-border);
+    background-color: var(--background-primary);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-grow: 1; /* Make chips expand nicely */
+    text-align: center;
+    max-width: fit-content; /* Don't grow too huge */
+}
+
+.emotion-chip:hover {
+    background-color: var(--background-secondary);
+}
+
+.emotion-chip.selected {
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
+    border-color: var(--interactive-accent);
+}
+
+.emotion-chip.positive.selected { background-color: var(--color-green); border-color: var(--color-green); }
+.emotion-chip.negative.selected { background-color: var(--color-red); border-color: var(--color-red); }
+.emotion-chip.neutral.selected { background-color: var(--color-blue); border-color: var(--color-blue); }
+
+textarea {
   width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-primary);
+  font-size: 14px;
+  color: var(--text-normal);
+  resize: vertical;
+  min-height: 60px;
 }
 
-.save-btn:hover {
-  opacity: 0.9;
-}
-
-.save-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.status-bar {
+    text-align: right;
+    font-size: 10px;
+    color: var(--text-muted);
+    height: 12px;
 }
