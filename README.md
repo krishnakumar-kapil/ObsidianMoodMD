@@ -2,7 +2,7 @@
 
 An Obsidian plugin that mimics the Apple Health/Fitness UI for tracking mental health and gratitude, with all data stored directly in your Markdown daily notes.
 
-![Mood Tracker UI Placeholder](https://via.placeholder.com/800x450.png?text=Obsidian+Mood+MD+UI+Preview)
+![Mood Tracker UI Preview](./ui-preview.png)
 
 ## Features
 
