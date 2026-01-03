@@ -1,0 +1,9 @@
+node_modules/
+main.js
+.DS_Store
+*.log
+.obsidian/
+dist/
+build/
+# If you don't want to track the sample vault's internal state
+sample_obsidian_vault/.obsidian/

@@ -1,0 +1,151 @@
+/* Obsidian Mood MD Styles */
+
+.mood-tracker-plugin-view {
+  padding: 20px;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.mood-tracker-container {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 5px;
+  color: var(--text-normal);
+}
+
+.header p {
+  font-size: 16px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.card {
+  background-color: var(--background-primary);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--background-modifier-border);
+}
+
+/* Dark mode adjustment if needed, usually Obsidian handles vars */
+.theme-dark .card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--text-normal);
+}
+
+/* Mood Selector */
+.mood-selector {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mood-btn {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.mood-btn:hover {
+  background-color: var(--background-secondary);
+}
+
+.mood-btn.selected {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.mood-btn .emoji {
+  font-size: 32px;
+  margin-bottom: 5px;
+}
+
+.mood-btn .label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: var(--text-muted);
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-secondary);
+  font-size: 16px;
+  color: var(--text-normal);
+  transition: border-color 0.2s;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--interactive-accent);
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Save Button */
+.save-btn {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  padding: 16px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  text-align: center;
+  width: 100%;
+}
+
+.save-btn:hover {
+  opacity: 0.9;
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

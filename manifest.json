@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-mood-md",
+	"name": "Obsidian Mood MD",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Apple-style mood, workout, and gratitude tracker syncing to Markdown.",
+	"author": "Kapil",
+	"authorUrl": "https://github.com/kapil",
+	"isDesktopOnly": false
+}
