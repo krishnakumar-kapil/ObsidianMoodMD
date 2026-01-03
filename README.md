@@ -70,5 +70,18 @@ To test the plugin in a local vault:
 3. Open the vault in Obsidian and enable the plugin.
 4. Verify that the `## Daily Log` section updates correctly when interacting with the UI.
 
+## Support
+
+
+
+If you find this plugin useful and want to support its development, you can buy me a coffee!
+
+
+
+<a href="https://www.buymeacoffee.com/krishnakumarkapil" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
+
+
 ## License
+
 MIT
