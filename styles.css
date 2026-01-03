@@ -108,12 +108,12 @@
 }
 
 .emotion-chip {
-    padding: 4px 10px;
-    border-radius: 16px;
+    padding: 3px 8px;
+    border-radius: 14px;
     border: 1px solid var(--background-modifier-border);
     background-color: var(--background-primary);
     color: var(--text-muted);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
