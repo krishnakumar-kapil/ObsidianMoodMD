@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { App, TFile } from "obsidian";
 import { DataService, DayData } from "./DataService";
 import { EMOTIONS } from "./constants";
@@ -14,7 +14,12 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
-  const dataService = new DataService(app);
+  // Use a ref to track if the current data needs saving
+  const dirtyRef = useRef(false);
+  // Use a ref to access latest data in timeout without dependency issues
+  const dataRef = useRef<DayData | null>(null);
+
+  const dataService = useMemo(() => new DataService(app), [app]);
 
   // Pick a random prompt once on mount
   const placeholder = useMemo(() => {
@@ -28,18 +33,38 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
     loadData();
   }, [file]);
 
+  // Keep ref in sync
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
+  // Debounced Save Effect
+  useEffect(() => {
+    if (!dirtyRef.current || !data) return;
+
+    const timer = setTimeout(async () => {
+      setSaving(true);
+      if (dataRef.current) {
+        await dataService.saveTodayData(dataRef.current, file);
+      }
+      setSaving(false);
+      dirtyRef.current = false;
+    }, 1000); // 1 second debounce
+
+    return () => clearTimeout(timer);
+  }, [data, file, dataService]);
+
   const loadData = async () => {
     setLoading(true);
     const dayData = await dataService.getTodayData(file);
     setData(dayData);
+    dirtyRef.current = false; // Reset dirty flag on load
     setLoading(false);
   };
 
-  const handleSave = async (newData: DayData) => {
+  const updateData = (newData: DayData) => {
     setData(newData);
-    setSaving(true);
-    await dataService.saveTodayData(newData, file);
-    setSaving(false);
+    dirtyRef.current = true;
   };
 
   const toggleEmotion = (emotionId: string) => {
@@ -49,12 +74,12 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
         ? current.filter(e => e !== emotionId)
         : [...current, emotionId];
       
-      handleSave({ ...data, emotions: newEmotions });
+      updateData({ ...data, emotions: newEmotions });
   };
 
   const updateMood = (val: number) => {
       if(!data) return;
-      handleSave({ ...data, mood: val });
+      updateData({ ...data, mood: val });
   };
 
   if (loading || !data) {
@@ -111,13 +136,14 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
         <textarea
           placeholder={placeholder}
           value={data.gratitude}
-          onChange={(e) => handleSave({ ...data, gratitude: e.target.value })}
+          onChange={(e) => updateData({ ...data, gratitude: e.target.value })}
           rows={2}
         />
       </div>
       
       <div className="status-bar">
-          {saving ? <span className="saving">Saving...</span> : <span className="saved">Saved</span>}
+          {dirtyRef.current ? <span className="saving">Unsaved changes...</span> : <span className="saved">Saved</span>}
+          {saving && <span className="saving" style={{marginLeft: '10px'}}>(Syncing)</span>}
       </div>
     </div>
   );
