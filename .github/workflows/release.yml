@@ -9,6 +9,9 @@ on:
 env:
   PLUGIN_NAME: obsidian-mood-md # Change this to your plugin's id
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
