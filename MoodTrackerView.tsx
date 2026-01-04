@@ -44,7 +44,7 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
       }
       setSaving(false);
       dirtyRef.current = false;
-    }, 500); // 500ms debounce for snappiness
+    }, 200); // 200ms debounce for snappiness
 
     return () => clearTimeout(timer);
   }, [data, file, dataService]);
