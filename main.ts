@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab, Setting, WorkspaceLeaf, ItemView, TFile, MarkdownView, Editor, Notice } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting, WorkspaceLeaf, ItemView, TFile, MarkdownView, Editor, Notice, MarkdownRenderChild } from 'obsidian';
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { MoodTrackerView } from './MoodTrackerView';
@@ -37,6 +37,19 @@ class MoodTrackerSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 	}
+}
+
+// --- Lifecycle Helper for React in Code Blocks ---
+class ReactPortal extends MarkdownRenderChild {
+    root: Root;
+    constructor(el: HTMLElement, component: React.ReactElement) {
+        super(el);
+        this.root = createRoot(el);
+        this.root.render(component);
+    }
+    onunload() {
+        this.root.unmount();
+    }
 }
 
 // --- View (Sidebar) ---
@@ -88,12 +101,10 @@ export default class ObsidianMoodPlugin extends Plugin {
 			(leaf) => new MoodTrackerItemView(leaf, this)
 		);
 
-		// Ribbon Icon: Insert Tracker into current note
 		this.addRibbonIcon('heart', 'Insert Mood Tracker', () => {
 			this.insertTrackerIntoCurrentNote();
 		});
 
-        // Command: Insert Tracker
 		this.addCommand({
 			id: 'insert-mood-tracker',
 			name: 'Insert Mood Tracker into current note',
@@ -102,7 +113,6 @@ export default class ObsidianMoodPlugin extends Plugin {
             }
 		});
 
-        // Command: Open Sidebar View (Legacy/Alternative)
 		this.addCommand({
 			id: 'open-mood-tracker-sidebar',
 			name: 'Open Mood Tracker Sidebar',
@@ -115,15 +125,18 @@ export default class ObsidianMoodPlugin extends Plugin {
 
 		this.registerMarkdownCodeBlockProcessor("mood-tracker", (source, el, ctx) => {
 			el.addClass('mood-tracker-plugin-view');
-			const root = createRoot(el);
+			
 			const file = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
 			const tFile = file instanceof TFile ? file : undefined;
 			
-			root.render(React.createElement(MoodTrackerView, { 
+            const component = React.createElement(MoodTrackerView, { 
                 app: this.app, 
                 file: tFile,
                 prompts: this.settings.gratitudePrompts.split('\n')
-            }));
+            });
+
+            // Use Lifecycle Helper to ensure cleanup
+            ctx.addChild(new ReactPortal(el, component));
 		});
 	}
 
@@ -147,7 +160,6 @@ export default class ObsidianMoodPlugin extends Plugin {
                 return;
             }
 
-            // Append to the end
             const lastLine = editor.lineCount();
             editor.replaceRange(`\n${trackerBlock}\n`, { line: lastLine, ch: 0 });
             new Notice("Mood Tracker added!");

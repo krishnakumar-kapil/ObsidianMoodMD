@@ -14,14 +14,11 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
-  // Use a ref to track if the current data needs saving
   const dirtyRef = useRef(false);
-  // Use a ref to access latest data in timeout without dependency issues
   const dataRef = useRef<DayData | null>(null);
 
   const dataService = useMemo(() => new DataService(app), [app]);
 
-  // Pick a random prompt once on mount
   const placeholder = useMemo(() => {
       if (!prompts || prompts.length === 0) return "What are you grateful for?";
       const filtered = prompts.filter(p => p.trim().length > 0);
@@ -33,12 +30,10 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
     loadData();
   }, [file]);
 
-  // Keep ref in sync
   useEffect(() => {
     dataRef.current = data;
   }, [data]);
 
-  // Debounced Save Effect
   useEffect(() => {
     if (!dirtyRef.current || !data) return;
 
@@ -49,7 +44,7 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
       }
       setSaving(false);
       dirtyRef.current = false;
-    }, 1000); // 1 second debounce
+    }, 500); // 500ms debounce for snappiness
 
     return () => clearTimeout(timer);
   }, [data, file, dataService]);
@@ -58,7 +53,7 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
     setLoading(true);
     const dayData = await dataService.getTodayData(file);
     setData(dayData);
-    dirtyRef.current = false; // Reset dirty flag on load
+    dirtyRef.current = false;
     setLoading(false);
   };
 
@@ -88,7 +83,6 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
 
   return (
     <div className="mood-tracker-container">
-      {/* Mood Slider Card */}
       <div className="card mood-card">
         <div className="card-header">
             <h2>Mood</h2>
@@ -114,7 +108,6 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
         </div>
       </div>
 
-      {/* Emotions Card */}
       <div className="card emotions-card">
         <h2>How do you feel?</h2>
         <div className="emotions-grid">
@@ -130,7 +123,6 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
         </div>
       </div>
 
-      {/* Gratitude Card */}
       <div className="card gratitude-card">
         <h2>Gratitude</h2>
         <textarea
