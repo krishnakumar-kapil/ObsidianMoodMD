@@ -1,4 +1,4 @@
-import { App, TFile, MarkdownView } from "obsidian";
+import { App, TFile } from "obsidian";
 
 export interface DayData {
     mood: number; // 0-10
@@ -44,11 +44,8 @@ export class DataService {
     }
 
     parseLogSection(content: string): DayData | null {
-        const logHeader = "## Daily Log";
-        if (!content.includes(logHeader)) return null;
-
-        // Extract the section
-        const sectionRegex = /## Daily Log\n([\s\S]*?)(?=\n##|$)/;
+        // Robust regex to find the header, optionally followed by newlines/whitespace
+        const sectionRegex = /## Daily Log\s*\n([\s\S]*?)(?=\n##|$)/i;
         const match = content.match(sectionRegex);
         if (!match) return null;
 
@@ -112,7 +109,8 @@ export class DataService {
 `;
 
         if (content.includes(logHeader)) {
-            const regex = /## Daily Log\n([\s\S]*?)(?=\n##|$)/;
+            // Robust regex to find the header for replacement
+            const regex = /## Daily Log\s*\n([\s\S]*?)(?=\n##|$)/i;
              if (regex.test(content)) {
                  content = content.replace(regex, newSection.trim());
             } else {

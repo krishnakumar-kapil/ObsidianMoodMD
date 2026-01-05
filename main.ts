@@ -25,7 +25,7 @@ class MoodTrackerSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Mood tracker settings')
+			.setName('Mood tracker')
 			.setHeading();
 
 		new Setting(containerEl)

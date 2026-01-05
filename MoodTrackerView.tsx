@@ -107,6 +107,11 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
                 step="1"
                 value={data.mood}
                 onChange={(e) => updateMood(parseInt(e.target.value))}
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
                 className="mood-slider"
                 style={{
                     background: `linear-gradient(to right, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)`
