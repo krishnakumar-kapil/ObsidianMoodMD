@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { App, TFile } from "obsidian";
 import { DataService, DayData } from "./DataService";
 import { EMOTIONS } from "./constants";
@@ -27,7 +27,7 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
   }, [prompts]);
 
   useEffect(() => {
-    loadData();
+    void loadData();
   }, [file]);
 
   useEffect(() => {
@@ -37,13 +37,19 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
   useEffect(() => {
     if (!dirtyRef.current || !data) return;
 
-    const timer = setTimeout(async () => {
-      setSaving(true);
+    const timer = setTimeout(() => {
       if (dataRef.current) {
-        await dataService.saveTodayData(dataRef.current, file);
+        setSaving(true);
+        dataService.saveTodayData(dataRef.current, file)
+          .then(() => {
+            setSaving(false);
+            dirtyRef.current = false;
+          })
+          .catch((err) => {
+            console.error("Failed to save mood data:", err);
+            setSaving(false);
+          });
       }
-      setSaving(false);
-      dirtyRef.current = false;
     }, 200); // 200ms debounce for snappiness
 
     return () => clearTimeout(timer);
@@ -51,10 +57,15 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
 
   const loadData = async () => {
     setLoading(true);
-    const dayData = await dataService.getTodayData(file);
-    setData(dayData);
-    dirtyRef.current = false;
-    setLoading(false);
+    try {
+      const dayData = await dataService.getTodayData(file);
+      setData(dayData);
+      dirtyRef.current = false;
+    } catch (err) {
+      console.error("Failed to load mood data:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateData = (newData: DayData) => {
@@ -102,7 +113,7 @@ export const MoodTrackerView = ({ app, file, prompts }: MoodTrackerProps) => {
                 }}
             />
             <div className="slider-labels">
-                <span>Very Unpleasant</span>
+                <span>Very unpleasant</span>
                 <span>Pleasant</span>
             </div>
         </div>

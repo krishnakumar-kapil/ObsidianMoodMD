@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab, Setting, WorkspaceLeaf, ItemView, TFile, MarkdownView, Editor, Notice, MarkdownRenderChild } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting, WorkspaceLeaf, ItemView, TFile, Editor, Notice, MarkdownRenderChild, MarkdownView } from 'obsidian';
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { MoodTrackerView } from './MoodTrackerView';
@@ -24,17 +24,19 @@ class MoodTrackerSettingTab extends PluginSettingTab {
 		const {containerEl} = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Mood Tracker Settings'});
+		new Setting(containerEl)
+			.setName('Mood tracker settings')
+			.setHeading();
 
 		new Setting(containerEl)
-			.setName('Gratitude Prompts')
+			.setName('Gratitude prompts')
 			.setDesc('One prompt per line. A random one will be chosen as the placeholder text.')
 			.addTextArea(text => text
 				.setPlaceholder('Enter prompts...')
 				.setValue(this.plugin.settings.gratitudePrompts)
-				.onChange(async (value) => {
+				.onChange((value) => {
 					this.plugin.settings.gratitudePrompts = value;
-					await this.plugin.saveSettings();
+					void this.plugin.saveSettings();
 				}));
 	}
 }
@@ -69,11 +71,11 @@ class MoodTrackerItemView extends ItemView {
 	}
 
 	getDisplayText() {
-		return 'Mood Tracker';
+		return 'Mood tracker';
 	}
 
-	async onOpen() {
-		const container = this.containerEl.children[1];
+	onOpen() {
+		const container = this.containerEl.children[1] as HTMLElement;
 		container.empty();
 		container.addClass('mood-tracker-plugin-view');
 
@@ -82,10 +84,12 @@ class MoodTrackerItemView extends ItemView {
             app: this.app, 
             prompts: this.plugin.settings.gratitudePrompts.split('\n') 
         }));
+        return Promise.resolve();
 	}
 
-	async onClose() {
+	onClose() {
 		this.root?.unmount();
+        return Promise.resolve();
 	}
 }
 
@@ -101,23 +105,23 @@ export default class ObsidianMoodPlugin extends Plugin {
 			(leaf) => new MoodTrackerItemView(leaf, this)
 		);
 
-		this.addRibbonIcon('heart', 'Insert Mood Tracker', () => {
+		this.addRibbonIcon('heart', 'Insert mood tracker', () => {
 			this.insertTrackerIntoCurrentNote();
 		});
 
 		this.addCommand({
 			id: 'insert-mood-tracker',
-			name: 'Insert Mood Tracker into current note',
-            editorCallback: (editor: Editor, view: MarkdownView) => {
+			name: 'Insert mood tracker into current note',
+            editorCallback: (editor: Editor) => {
                 editor.replaceSelection('```mood-tracker\n```\n');
             }
 		});
 
 		this.addCommand({
 			id: 'open-mood-tracker-sidebar',
-			name: 'Open Mood Tracker Sidebar',
+			name: 'Open mood tracker sidebar',
 			callback: () => {
-				this.activateView();
+				void this.activateView();
 			}
 		});
 
@@ -156,15 +160,15 @@ export default class ObsidianMoodPlugin extends Plugin {
             const trackerBlock = "```mood-tracker\n```";
             
             if (content.includes("```mood-tracker")) {
-                new Notice("Mood Tracker already exists in this note.");
+                new Notice("Mood tracker already exists in this note.");
                 return;
             }
 
             const lastLine = editor.lineCount();
             editor.replaceRange(`\n${trackerBlock}\n`, { line: lastLine, ch: 0 });
-            new Notice("Mood Tracker added!");
+            new Notice("Mood tracker added!");
         } else {
-            new Notice("Open a Markdown note to add the Mood Tracker.");
+            new Notice("Open a markdown note to add the mood tracker.");
         }
     }
 
