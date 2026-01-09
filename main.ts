@@ -168,7 +168,7 @@ export default class ObsidianMoodPlugin extends Plugin {
             editor.replaceRange(`\n${trackerBlock}\n`, { line: lastLine, ch: 0 });
             new Notice("Mood tracker added!");
         } else {
-            new Notice("Open a markdown note to add the mood tracker.");
+            new Notice("Open a Markdown note to add the mood tracker.");
         }
     }
 
@@ -194,7 +194,7 @@ export default class ObsidianMoodPlugin extends Plugin {
 		}
 
 		if (leaf) {
-			workspace.revealLeaf(leaf);
+			void workspace.revealLeaf(leaf);
 		}
 	}
 }
