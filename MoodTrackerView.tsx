@@ -60,6 +60,13 @@ const TrendsView = ({ app, settings, dataService }: { app: App, settings: MoodTr
             emotionCounts[e] = (emotionCounts[e] || 0) + 1;
         });
     });
+
+    const allEmotionsFromSettings = settings.emotionWheel.reduce((acc, curr) => {
+        acc.push(curr);
+        if (curr.subEmotions) acc.push(...curr.subEmotions);
+        return acc;
+    }, [] as any[]);
+
     const sortedEmotions = Object.entries(emotionCounts)
         .sort(([,a], [,b]) => b - a)
         .slice(0, 5);
@@ -75,7 +82,7 @@ const TrendsView = ({ app, settings, dataService }: { app: App, settings: MoodTr
                 <h2>Common Emotions</h2>
                 <div className="emotions-frequency">
                     {sortedEmotions.map(([id, count]) => {
-                        const emotion = EMOTIONS.find(e => e.id === id);
+                        const emotion = allEmotionsFromSettings.find(e => e.id === id);
                         return (
                             <div key={id} className="emotion-freq-row">
                                 <span className="emotion-label">{emotion?.label || id}</span>
@@ -249,7 +256,7 @@ export const MoodTrackerView = ({ app, file, settings }: MoodTrackerProps) => {
             <div className="card emotions-card">
                 <h2>How do you feel?</h2>
                 <div className={settings.emotionViewMode === 'grid' ? 'emotions-grid-layout' : 'emotions-compact-layout'}>
-                    {EMOTION_WHEEL.map(parent => (
+                    {settings.emotionWheel.map(parent => (
                         <div key={parent.id} className="emotion-row-group">
                             <button
                                 className={`emotion-chip parent ${parent.type} ${data.emotions.includes(parent.id) ? 'selected' : ''} ${expandedEmotion === parent.id ? 'expanded' : ''}`}

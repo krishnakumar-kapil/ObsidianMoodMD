@@ -14,10 +14,19 @@ export interface TextBlockConfig {
 	prompts: string;
 }
 
+export interface Emotion {
+    id: string;
+    label: string;
+    type: "positive" | "negative" | "neutral";
+    need?: string;
+    subEmotions?: Emotion[];
+}
+
 export interface MoodTrackerSettings {
 	sliders: SliderConfig[];
 	textBlocks: TextBlockConfig[];
 	emotionViewMode: 'compact' | 'grid';
+	emotionWheel: Emotion[];
 }
 
 export interface DayData {

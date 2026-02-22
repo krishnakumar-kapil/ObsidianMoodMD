@@ -3,26 +3,8 @@ import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { MoodTrackerView } from './MoodTrackerView';
 
-// --- Settings ---
-interface SliderConfig {
-	id: string;
-	name: string;
-	minLabel: string;
-	maxLabel: string;
-	color: string;
-}
-
-interface TextBlockConfig {
-	id: string;
-	name: string;
-	prompts: string;
-}
-
-interface MoodTrackerSettings {
-	sliders: SliderConfig[];
-	textBlocks: TextBlockConfig[];
-	emotionViewMode: 'compact' | 'grid';
-}
+import { SliderConfig, TextBlockConfig, MoodTrackerSettings, DataService, Emotion } from './DataService';
+import { EMOTION_WHEEL } from './constants';
 
 const DEFAULT_SETTINGS: MoodTrackerSettings = {
 	sliders: [
@@ -32,7 +14,8 @@ const DEFAULT_SETTINGS: MoodTrackerSettings = {
 		{ id: 'gratitude', name: 'Gratitude', prompts: "What are you grateful for today?\nWhat made you smile today?\nWhat is one small win you had today?"
 		}
 	],
-	emotionViewMode: 'grid'
+	emotionViewMode: 'grid',
+	emotionWheel: EMOTION_WHEEL
 }
 
 class MoodTrackerSettingTab extends PluginSettingTab {
@@ -61,6 +44,78 @@ class MoodTrackerSettingTab extends PluginSettingTab {
 				.onChange(async (value: 'compact' | 'grid') => {
 					this.plugin.settings.emotionViewMode = value;
 					await this.plugin.saveSettings();
+				}));
+
+		containerEl.createEl('h3', { text: 'Emotion Wheel' });
+		this.plugin.settings.emotionWheel.forEach((parent, pIndex) => {
+			const s = new Setting(containerEl)
+				.setName(`Category: ${parent.label}`)
+				.addText(text => text
+					.setValue(parent.label)
+					.onChange(async (val) => {
+						parent.label = val;
+						await this.plugin.saveSettings();
+					}))
+				.addButton(btn => btn
+					.setButtonText('Remove Category')
+					.setWarning()
+					.onClick(async () => {
+						this.plugin.settings.emotionWheel.splice(pIndex, 1);
+						await this.plugin.saveSettings();
+						this.display();
+					}));
+			
+			const subContainer = containerEl.createDiv({ cls: 'mood-tracker-settings-subs' });
+			subContainer.style.paddingLeft = '20px';
+			subContainer.style.marginBottom = '10px';
+
+			parent.subEmotions?.forEach((sub, sIndex) => {
+				const subSetting = new Setting(subContainer)
+					.setName(`Emotion: ${sub.label}`)
+					.addText(text => text
+						.setValue(sub.label)
+						.onChange(async (val) => {
+							sub.label = val;
+							await this.plugin.saveSettings();
+						}))
+					.addButton(btn => btn
+						.setIcon('trash')
+						.setWarning()
+						.onClick(async () => {
+							parent.subEmotions?.splice(sIndex, 1);
+							await this.plugin.saveSettings();
+							this.display();
+						}));
+			});
+
+			new Setting(subContainer)
+				.addButton(btn => btn
+					.setButtonText(`Add Emotion to ${parent.label}`)
+					.onClick(async () => {
+						if (!parent.subEmotions) parent.subEmotions = [];
+						parent.subEmotions.push({
+							id: `emo-${Date.now()}`,
+							label: 'New Emotion',
+							type: parent.type
+						});
+						await this.plugin.saveSettings();
+						this.display();
+					}));
+		});
+
+		new Setting(containerEl)
+			.addButton(btn => btn
+				.setButtonText('Add Category')
+				.setCta()
+				.onClick(async () => {
+					this.plugin.settings.emotionWheel.push({
+						id: `cat-${Date.now()}`,
+						label: 'New Category',
+						type: 'neutral',
+						subEmotions: []
+					});
+					await this.plugin.saveSettings();
+					this.display();
 				}));
 
 		containerEl.createEl('h3', { text: 'Sliders' });

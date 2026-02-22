@@ -9,60 +9,85 @@ export interface Emotion {
 export const EMOTION_WHEEL: Emotion[] = [
     {
         id: "joy",
-        label: "Joyful",
+        label: "Happy",
         type: "positive",
-        need: "Connection",
         subEmotions: [
-            { id: "happy", label: "Happy", type: "positive", need: "Connection" },
-            { id: "excited", label: "Excited", type: "positive", need: "Stimulation" },
-            { id: "grateful", label: "Grateful", type: "positive", need: "Appreciation" },
-            { id: "relaxed", label: "Relaxed", type: "positive", need: "Rest" },
-            { id: "proud", label: "Proud", type: "positive", need: "Recognition" },
+            { id: "content", label: "Content", type: "positive" },
+            { id: "accepted", label: "Accepted", type: "positive" },
+            { id: "peaceful", label: "Peaceful", type: "positive" },
+            { id: "aroused", label: "Aroused", type: "positive" },
+            { id: "free", label: "Free", type: "positive" },
+            { id: "curious", label: "Curious", type: "positive" },
+            { id: "confident", label: "Confident", type: "positive" },
+            { id: "valued", label: "Valued", type: "positive" },
+            { id: "courageous", label: "Courageous", type: "positive" },
+            { id: "intimate", label: "Intimate", type: "positive" },
+            { id: "hopeful", label: "Hopeful", type: "positive" },
         ]
     },
     {
         id: "sadness",
         label: "Sad",
         type: "negative",
-        need: "Compassion",
         subEmotions: [
-            { id: "lonely", label: "Lonely", type: "negative", need: "Connection" },
-            { id: "hurt", label: "Hurt", type: "negative", need: "Safety" },
-            { id: "disappointed", label: "Disappointed", type: "negative", need: "Understanding" },
-            { id: "bored", label: "Bored", type: "negative", need: "Purpose" },
+            { id: "lonely", label: "Lonely", type: "negative" },
+            { id: "vulnerable", label: "Vulnerable", type: "negative" },
+            { id: "guilty", label: "Guilty", type: "negative" },
+            { id: "hurt", label: "Hurt", type: "negative" },
+            { id: "embarassed_sad", label: "Embarassed", type: "negative" },
+            { id: "disappointed_sad", label: "Disappointed", type: "negative" },
+            { id: "ashamed", label: "Ashamed", type: "negative" },
         ]
     },
     {
         id: "anger",
         label: "Angry",
         type: "negative",
-        need: "Respect",
         subEmotions: [
-            { id: "frustrated", label: "Frustrated", type: "negative", need: "Autonomy" },
-            { id: "annoyed", label: "Annoyed", type: "negative", need: "Space" },
-            { id: "resentful", label: "Resentful", type: "negative", need: "Justice" },
+            { id: "humiliated", label: "Humiliated", type: "negative" },
+            { id: "aggressive", label: "Aggressive", type: "negative" },
+            { id: "distant", label: "Distant", type: "negative" },
+            { id: "resentful", label: "Resentful", type: "negative" },
+            { id: "disrespected", label: "Disrespected", type: "negative" },
+            { id: "furious", label: "Furious", type: "negative" },
+            { id: "jealous", label: "Jealous", type: "negative" },
+            { id: "provoked", label: "Provoked", type: "negative" },
+            { id: "numb", label: "Numb", type: "negative" },
         ]
     },
     {
         id: "fear",
         label: "Fearful",
         type: "negative",
-        need: "Safety",
         subEmotions: [
-            { id: "anxious", label: "Anxious", type: "negative", need: "Certainty" },
-            { id: "overwhelmed", label: "Overwhelmed", type: "negative", need: "Support" },
-            { id: "confused", label: "Confused", type: "negative", need: "Clarity" },
+            { id: "insecure", label: "Insecure", type: "negative" },
+            { id: "rejected", label: "Rejected", type: "negative" },
+            { id: "threatened", label: "Threatened", type: "negative" },
+            { id: "helpless", label: "Helpless", type: "negative" },
+            { id: "overwhelmed", label: "Overwhelmed", type: "negative" },
+            { id: "worried", label: "Worried", type: "negative" },
+            { id: "worthless", label: "Worthless", type: "negative" },
         ]
     },
     {
-        id: "power",
-        label: "Powerful",
-        type: "positive",
-        need: "Competence",
+        id: "disgust",
+        label: "Disgusted",
+        type: "negative",
         subEmotions: [
-            { id: "confident", label: "Confident", type: "positive", need: "Competence" },
-            { id: "focused", label: "Focused", type: "positive", need: "Achievement" },
-            { id: "energetic", label: "Energetic", type: "positive", need: "Vitality" },
+            { id: "disappointed_disgust", label: "Disappointed", type: "negative" },
+            { id: "judgemental", label: "Judgemental", type: "negative" },
+            { id: "embarassed_disgust", label: "Embarassed", type: "negative" },
+            { id: "hesitant", label: "Hesitant", type: "negative" },
+        ]
+    },
+    {
+        id: "surprise",
+        label: "Surprised",
+        type: "neutral",
+        subEmotions: [
+            { id: "confused", label: "Confused", type: "neutral" },
+            { id: "startled", label: "Startled", type: "neutral" },
+            { id: "energetic", label: "Energetic", type: "neutral" },
         ]
     }
 ];
