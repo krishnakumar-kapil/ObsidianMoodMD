@@ -98,43 +98,60 @@
     font-weight: 500;
 }
 
-/* Emotions Grid */
-.emotions-grid {
+/* Emotions Layouts */
+.emotions-grid-layout, .emotions-compact-layout {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
+    flex-direction: column;
+    gap: 4px;
     width: 100%;
 }
 
+.emotion-row-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px;
+    background: var(--background-secondary);
+    border-radius: 12px;
+    width: 100%;
+    align-items: center;
+}
+
 .emotion-chip {
-    padding: 3px 8px;
-    border-radius: 14px;
-    border: 1px solid var(--background-modifier-border);
+    padding: 2px 2px;
+    border-radius: 12px;
+    border: none;
     background-color: var(--background-primary);
-    color: var(--text-muted);
-    font-size: 11px;
+    color: var(--text-normal);
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
-    flex-grow: 1; /* Make chips expand nicely */
+    transition: all 0.1s ease;
     text-align: center;
-    max-width: fit-content; /* Don't grow too huge */
+    width: fit-content;
+    white-space: nowrap;
+}
+
+.emotion-chip.parent {
+    font-weight: 700;
+}
+
+.emotion-chip.sub {
+    font-weight: 500;
 }
 
 .emotion-chip:hover {
-    background-color: var(--background-secondary);
+    background-color: var(--background-primary-alt);
 }
 
 .emotion-chip.selected {
-    background-color: var(--interactive-accent);
-    color: var(--text-on-accent);
-    border-color: var(--interactive-accent);
+    color: white !important;
+    border: none !important;
 }
 
-.emotion-chip.positive.selected { background-color: var(--color-green); border-color: var(--color-green); }
-.emotion-chip.negative.selected { background-color: var(--color-red); border-color: var(--color-red); }
-.emotion-chip.neutral.selected { background-color: var(--color-blue); border-color: var(--color-blue); }
+.emotion-chip.positive.selected { background-color: var(--color-blue) !important; border: none !important; }
+.emotion-chip.negative.selected { background-color: var(--color-red) !important; border: none !important; }
+.emotion-chip.neutral.selected { background-color: var(--background-modifier-border-stronger) !important; border: none !important; }
 
 textarea {
   width: 100%;
@@ -153,4 +170,104 @@ textarea {
     font-size: 10px;
     color: var(--text-muted);
     height: 12px;
+}
+
+/* View Switcher */
+.view-switcher {
+    display: flex;
+    background: var(--background-secondary);
+    border-radius: 8px;
+    padding: 2px;
+    margin-bottom: 8px;
+}
+
+.view-switcher button {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.view-switcher button.active {
+    background: var(--background-primary);
+    color: var(--text-normal);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Trends View */
+.trends-view {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.trend-chart-container {
+    margin-bottom: 16px;
+}
+
+.trend-chart-container h3 {
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+}
+
+.svg-wrapper {
+    height: 60px;
+    width: 100%;
+    background: var(--background-primary);
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.chart-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 9px;
+    color: var(--text-faint);
+}
+
+.emotions-frequency {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.emotion-freq-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.emotion-label {
+    width: 80px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.freq-bar-wrapper {
+    flex: 1;
+    height: 8px;
+    background: var(--background-primary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.freq-bar {
+    height: 100%;
+    background: var(--interactive-accent);
+}
+
+.freq-count {
+    font-size: 11px;
+    font-weight: 700;
+    width: 20px;
 }

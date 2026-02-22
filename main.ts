@@ -4,12 +4,35 @@ import { createRoot, Root } from 'react-dom/client';
 import { MoodTrackerView } from './MoodTrackerView';
 
 // --- Settings ---
+interface SliderConfig {
+	id: string;
+	name: string;
+	minLabel: string;
+	maxLabel: string;
+	color: string;
+}
+
+interface TextBlockConfig {
+	id: string;
+	name: string;
+	prompts: string;
+}
+
 interface MoodTrackerSettings {
-	gratitudePrompts: string;
+	sliders: SliderConfig[];
+	textBlocks: TextBlockConfig[];
+	emotionViewMode: 'compact' | 'grid';
 }
 
 const DEFAULT_SETTINGS: MoodTrackerSettings = {
-	gratitudePrompts: "What are you grateful for today?\nWhat made you smile today?\nWhat is one small win you had today?"
+	sliders: [
+		{ id: 'mood', name: 'Mood', minLabel: 'Very unpleasant', maxLabel: 'Pleasant', color: 'linear-gradient(to right, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)' }
+	],
+	textBlocks: [
+		{ id: 'gratitude', name: 'Gratitude', prompts: "What are you grateful for today?\nWhat made you smile today?\nWhat is one small win you had today?"
+		}
+	],
+	emotionViewMode: 'grid'
 }
 
 class MoodTrackerSettingTab extends PluginSettingTab {
@@ -29,14 +52,98 @@ class MoodTrackerSettingTab extends PluginSettingTab {
 			.setHeading();
 
 		new Setting(containerEl)
-			.setName('Gratitude prompts')
-			.setDesc('One prompt per line. A random one will be chosen as the placeholder text.')
-			.addTextArea(text => text
-				.setPlaceholder('Enter prompts...')
-				.setValue(this.plugin.settings.gratitudePrompts)
-				.onChange((value) => {
-					this.plugin.settings.gratitudePrompts = value;
-					void this.plugin.saveSettings();
+			.setName('Emotion view mode')
+			.setDesc('Compact uses an expansion toggle; Grid shows all emotions at once.')
+			.addDropdown(dropdown => dropdown
+				.addOption('compact', 'Compact')
+				.addOption('grid', 'Grid')
+				.setValue(this.plugin.settings.emotionViewMode)
+				.onChange(async (value: 'compact' | 'grid') => {
+					this.plugin.settings.emotionViewMode = value;
+					await this.plugin.saveSettings();
+				}));
+
+		containerEl.createEl('h3', { text: 'Sliders' });
+		this.plugin.settings.sliders.forEach((slider, index) => {
+			const s = new Setting(containerEl)
+				.setName(`Slider: ${slider.name}`)
+				.addText(text => text
+					.setPlaceholder('Slider name')
+					.setValue(slider.name)
+					.onChange(async (value) => {
+						slider.name = value;
+						await this.plugin.saveSettings();
+					}))
+				.addButton(button => button
+					.setButtonText('Remove')
+					.setWarning()
+					.onClick(async () => {
+						this.plugin.settings.sliders.splice(index, 1);
+						await this.plugin.saveSettings();
+						this.display();
+					}));
+		});
+
+		new Setting(containerEl)
+			.addButton(button => button
+				.setButtonText('Add slider')
+				.setCta()
+				.onClick(async () => {
+					this.plugin.settings.sliders.push({
+						id: `slider-${Date.now()}`,
+						name: 'New Metric',
+						minLabel: 'Low',
+						maxLabel: 'High',
+						color: 'linear-gradient(to right, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)'
+					});
+					await this.plugin.saveSettings();
+					this.display();
+				}));
+
+		containerEl.createEl('h3', { text: 'Text blocks' });
+		this.plugin.settings.textBlocks.forEach((block, index) => {
+			const s = new Setting(containerEl)
+				.setName(`Block: ${block.name}`)
+				.addText(text => text
+					.setPlaceholder('Block name')
+					.setValue(block.name)
+					.onChange(async (value) => {
+						block.name = value;
+						await this.plugin.saveSettings();
+					}))
+				.addButton(button => button
+					.setButtonText('Remove')
+					.setWarning()
+					.onClick(async () => {
+						this.plugin.settings.textBlocks.splice(index, 1);
+						await this.plugin.saveSettings();
+						this.display();
+					}));
+			
+			new Setting(containerEl)
+				.setName('Prompts')
+				.setDesc('One prompt per line.')
+				.addTextArea(text => text
+					.setPlaceholder('Enter prompts...')
+					.setValue(block.prompts)
+					.onChange(async (value) => {
+						block.prompts = value;
+						await this.plugin.saveSettings();
+					}));
+		});
+
+		new Setting(containerEl)
+			.addButton(button => button
+				.setButtonText('Add text block')
+				.setCta()
+				.onClick(async () => {
+					this.plugin.settings.textBlocks.push({
+						id: `block-${Date.now()}`,
+						name: 'New Block',
+						prompts: 'Enter prompts here...'
+					});
+					await this.plugin.saveSettings();
+					this.display();
 				}));
 	}
 }
@@ -82,7 +189,7 @@ class MoodTrackerItemView extends ItemView {
 		this.root = createRoot(container);
 		this.root.render(React.createElement(MoodTrackerView, { 
             app: this.app, 
-            prompts: this.plugin.settings.gratitudePrompts.split('\n') 
+            settings: this.plugin.settings
         }));
         return Promise.resolve();
 	}
@@ -136,7 +243,7 @@ export default class ObsidianMoodPlugin extends Plugin {
             const component = React.createElement(MoodTrackerView, { 
                 app: this.app, 
                 file: tFile,
-                prompts: this.settings.gratitudePrompts.split('\n')
+                settings: this.settings
             });
 
             // Use Lifecycle Helper to ensure cleanup

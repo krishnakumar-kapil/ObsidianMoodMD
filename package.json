@@ -1,6 +1,6 @@
 {
   "name": "obsidian-mood-md",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Apple-style mood, workout, and gratitude tracker syncing to Markdown.",
   "main": "main.js",
   "scripts": {

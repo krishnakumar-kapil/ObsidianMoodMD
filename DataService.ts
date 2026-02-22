@@ -1,24 +1,39 @@
 import { App, TFile } from "obsidian";
 
+export interface SliderConfig {
+	id: string;
+	name: string;
+	minLabel: string;
+	maxLabel: string;
+	color: string;
+}
+
+export interface TextBlockConfig {
+	id: string;
+	name: string;
+	prompts: string;
+}
+
+export interface MoodTrackerSettings {
+	sliders: SliderConfig[];
+	textBlocks: TextBlockConfig[];
+	emotionViewMode: 'compact' | 'grid';
+}
+
 export interface DayData {
-    mood: number; // 0-10
+    sliders: Record<string, number>;
     emotions: string[];
-    gratitude: string;
+    textBlocks: Record<string, string>;
 }
 
 export class DataService {
     app: App;
-    // We might need to know *which* file we are in if we are rendering inside a note.
-    // For now, we default to "Today", but for a code block, we should probably prefer the current active file
-    // if it matches the context. However, for a "Daily Tracker", targeting today's daily note is standard.
-    // Let's stick to "Today's Note" logic for consistency, or allow passing a file.
     
     constructor(app: App) {
         this.app = app;
     }
 
     getTodayFileName(): string {
-        // This is a simple implementation. In a real plugin, we might check Daily Notes settings.
         const today = new Date();
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -26,62 +41,77 @@ export class DataService {
         return `${yyyy}-${mm}-${dd}.md`;
     }
 
-    async getTodayData(file?: TFile): Promise<DayData> {
+    async getTodayData(settings: MoodTrackerSettings, file?: TFile): Promise<DayData> {
         const targetFile = file ?? this.app.vault.getAbstractFileByPath(this.getTodayFileName());
 
         const defaultData: DayData = {
-            mood: 5,
+            sliders: {},
             emotions: [],
-            gratitude: ""
+            textBlocks: {}
         };
+
+        // Initialize with default values from settings
+        settings.sliders.forEach(s => defaultData.sliders[s.id] = 5);
+        settings.textBlocks.forEach(t => defaultData.textBlocks[t.id] = "");
 
         if (!(targetFile instanceof TFile)) {
             return defaultData;
         }
 
         const content = await this.app.vault.read(targetFile);
-        return this.parseLogSection(content) || defaultData;
+        return this.parseLogSection(content, settings) || defaultData;
     }
 
-    parseLogSection(content: string): DayData | null {
-        // Robust regex to find the header, optionally followed by newlines/whitespace
+    parseLogSection(content: string, settings: MoodTrackerSettings): DayData | null {
         const sectionRegex = /## Daily Log\s*\n([\s\S]*?)(?=\n##|$)/i;
         const match = content.match(sectionRegex);
         if (!match) return null;
 
         const sectionContent = match[1];
-        
-        // Parse individual lines
-        // Expected format:
-        // - **Mood**: 7
-        // - **Emotions**: #Happy, #Tired
-        // - **Workout**: Running (30 mins)
-        // - **Gratitude**: Text...
+        const data: DayData = {
+            sliders: {},
+            emotions: [],
+            textBlocks: {}
+        };
 
-                const moodMatch = sectionContent.match(/\*\*Mood\*\*:\s*(\d+(\.\d+)?)/);
-                const emotionsMatch = sectionContent.match(/\*\*Emotions\*\*:\s*(.*)/);
-                const gratitudeMatch = sectionContent.match(/\*\*Gratitude\*\*:\s*([\s\S]*?)(?=\n- \*\*|$)/); 
-                
-                // Helper for emotions: "#Tag, #Tag"
-                let emotions: string[] = [];
-                if (emotionsMatch) {
-                    emotions = emotionsMatch[1].split(',')
-                        .map(s => s.trim().replace(/^#/, ''))
-                        .filter(s => s.length > 0);
-                }
-        
-                let gratitude = "";
-                if (gratitudeMatch) {
-                    gratitude = gratitudeMatch[1].trim();
-                }
-        
-                return {
-                    mood: moodMatch ? parseFloat(moodMatch[1]) : 5,
-                    emotions: emotions,
-                    gratitude: gratitude
-                };    }
+        // Parse sliders
+        settings.sliders.forEach(slider => {
+            const regex = new RegExp(`\\*\\*${slider.name}\\*\\*:\\s*(\\d+(\\.\\d+)?)`);
+            const m = sectionContent.match(regex);
+            data.sliders[slider.id] = m ? parseFloat(m[1]) : 5;
+        });
 
-    async saveTodayData(data: DayData, file?: TFile): Promise<void> {
+        // Backward compatibility for old "Mood"
+        if (!data.sliders['mood'] && sectionContent.match(/\*\*Mood\*\*:\s*(\d+(\.\d+)?)/)) {
+            const m = sectionContent.match(/\*\*Mood\*\*:\s*(\d+(\.\d+)?)/);
+            if (m) data.sliders['mood'] = parseFloat(m[1]);
+        }
+
+        // Parse emotions
+        const emotionsMatch = sectionContent.match(/\*\*Emotions\*\*:\s*(.*)/);
+        if (emotionsMatch) {
+            data.emotions = emotionsMatch[1].split(',')
+                .map(s => s.trim().replace(/^#/, ''))
+                .filter(s => s.length > 0);
+        }
+
+        // Parse text blocks
+        settings.textBlocks.forEach(block => {
+            const regex = new RegExp(`\\*\\*${block.name}\\*\\*:\\s*([\\s\\S]*?)(?=\\n- \\*\\*|$)`);
+            const m = sectionContent.match(regex);
+            data.textBlocks[block.id] = m ? m[1].trim() : "";
+        });
+
+        // Backward compatibility for old "Gratitude"
+        if (!data.textBlocks['gratitude'] && sectionContent.match(/\*\*Gratitude\*\*:\s*([\s\S]*?)(?=\n- \*\*|$)/)) {
+            const m = sectionContent.match(/\*\*Gratitude\*\*:\s*([\s\S]*?)(?=\n- \*\*|$)/);
+            if (m) data.textBlocks['gratitude'] = m[1].trim();
+        }
+
+        return data;
+    }
+
+    async saveTodayData(data: DayData, settings: MoodTrackerSettings, file?: TFile): Promise<void> {
         let targetFile = file;
         
         if (!targetFile) {
@@ -99,22 +129,27 @@ export class DataService {
         let content = await this.app.vault.read(targetFile);
         const logHeader = "## Daily Log";
         
-        // Construct the new section
-        const emotionsString = data.emotions.map(e => `#${e}`).join(', ');
+        let newSection = `${logHeader}\n`;
+        
+        // Sliders
+        settings.sliders.forEach(slider => {
+            newSection += `- **${slider.name}**: ${data.sliders[slider.id] || 5}\n`;
+        });
 
-        const newSection = `${logHeader}
-- **Mood**: ${data.mood}
-- **Emotions**: ${emotionsString}
-- **Gratitude**: ${data.gratitude}
-`;
+        // Emotions
+        const emotionsString = data.emotions.map(e => `#${e}`).join(', ');
+        newSection += `- **Emotions**: ${emotionsString}\n`;
+
+        // Text blocks
+        settings.textBlocks.forEach(block => {
+            newSection += `- **${block.name}**: ${data.textBlocks[block.id] || ""}\n`;
+        });
 
         if (content.includes(logHeader)) {
-            // Robust regex to find the header for replacement
             const regex = /## Daily Log\s*\n([\s\S]*?)(?=\n##|$)/i;
              if (regex.test(content)) {
                  content = content.replace(regex, newSection.trim());
             } else {
-                // Fallback replace header
                 content = content.replace(logHeader, newSection.trim());
             }
         } else {
@@ -122,5 +157,30 @@ export class DataService {
         }
 
         await this.app.vault.modify(targetFile, content);
+    }
+
+    async getHistory(settings: MoodTrackerSettings, days: number = 30): Promise<{date: string, data: DayData}[]> {
+        const files = this.app.vault.getMarkdownFiles();
+        const history: {date: string, data: DayData}[] = [];
+        
+        // Sort files by name (date) descending
+        files.sort((a, b) => b.name.localeCompare(a.name));
+        
+        // We only care about files that look like YYYY-MM-DD.md
+        const dateRegex = /^\d{4}-\d{2}-\d{2}/;
+        const targetFiles = files.filter(f => dateRegex.test(f.name)).slice(0, days);
+
+        for (const file of targetFiles) {
+            const content = await this.app.vault.read(file);
+            const dayData = this.parseLogSection(content, settings);
+            if (dayData) {
+                history.push({
+                    date: file.name.replace('.md', ''),
+                    data: dayData
+                });
+            }
+        }
+
+        return history.reverse(); // Return in chronological order
     }
 }

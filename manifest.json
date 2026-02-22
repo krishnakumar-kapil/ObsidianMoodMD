@@ -1,7 +1,7 @@
 {
 	"id": "mood-md",
 	"name": "Mood MD",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Apple-style mood, workout, and gratitude tracker syncing to Markdown.",
 	"author": "Kapil",
