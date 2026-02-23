@@ -118,12 +118,12 @@
 }
 
 .emotion-chip {
-    padding: 2px 2px;
-    border-radius: 12px;
+    padding: 0px 0px;
+    border-radius: 30px;
     border: none;
     background-color: var(--background-primary);
     color: var(--text-normal);
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.1s ease;
@@ -133,11 +133,15 @@
 }
 
 .emotion-chip.parent {
-    font-weight: 700;
+    font-weight: 800;
+    background-color: var(--background-secondary-alt);
+    margin-right: 2px;
+    border: 1px solid var(--background-modifier-border-stronger);
 }
 
 .emotion-chip.sub {
     font-weight: 500;
+    font-size: 14px;
 }
 
 .emotion-chip:hover {
@@ -149,9 +153,13 @@
     border: none !important;
 }
 
-.emotion-chip.positive.selected { background-color: var(--color-blue) !important; border: none !important; }
-.emotion-chip.negative.selected { background-color: var(--color-red) !important; border: none !important; }
-.emotion-chip.neutral.selected { background-color: var(--background-modifier-border-stronger) !important; border: none !important; }
+.emotion-chip.joy.selected { background-color: #248a3d !important; color: white !important; } /* Darker Green */
+.emotion-chip.sadness.selected { background-color: #007aff !important; } /* Blue */
+.emotion-chip.anger.selected { background-color: #ff3b30 !important; } /* Red */
+.emotion-chip.fear.selected { background-color: #af52de !important; } /* Purple */
+.emotion-chip.disgust.selected { background-color: #ffcc00 !important; color: black !important; } /* Yellow */
+.emotion-chip.surprise.selected { background-color: #5856d6 !important; } /* Indigo */
+.emotion-chip.power.selected { background-color: #c35400 !important; } /* Darker Orange */
 
 textarea {
   width: 100%;

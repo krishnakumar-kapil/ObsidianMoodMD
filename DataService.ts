@@ -17,7 +17,7 @@ export interface TextBlockConfig {
 export interface Emotion {
     id: string;
     label: string;
-    type: "positive" | "negative" | "neutral";
+    type: "positive" | "negative" | "neutral" | "joy" | "sadness" | "anger" | "fear" | "disgust" | "surprise" | "power";
     need?: string;
     subEmotions?: Emotion[];
 }
