@@ -29,10 +29,12 @@ const TrendsView = ({ app, settings, dataService }: { app: App, settings: MoodTr
     const sliderConfig = settings.sliders[0];
     const max = sliderConfig?.max || 10;
     
-    // Sort chronological for chart
-    const chronoHistory = [...history].reverse();
-    const recent = history.slice(0, 7); 
-    const previous = history.length > 7 ? history.slice(7, 14) : [];
+    // history is already oldest -> newest from DataService
+    const chronoHistory = history;
+    const latestFirstHistory = [...history].reverse();
+    
+    const recent = latestFirstHistory.slice(0, 7); 
+    const previous = latestFirstHistory.length > 7 ? latestFirstHistory.slice(7, 14) : [];
 
     const calcAvg = (days: {data: DayData}[]) => {
         if (days.length === 0) return 0;
@@ -159,7 +161,7 @@ const TrendsView = ({ app, settings, dataService }: { app: App, settings: MoodTr
             <div className="card timeline-card">
                 <h3 className="timeline-title">Recent History</h3>
                 <div className="vertical-timeline">
-                    {history.slice(0, 7).map(day => {
+                    {latestFirstHistory.slice(0, 7).map(day => {
                         const val = day.data.sliders[sliderId] ?? (settings.sliders[0]?.defaultValue ?? 5);
                         
                         return (
