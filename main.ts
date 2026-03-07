@@ -8,7 +8,7 @@ import { EMOTION_WHEEL } from './constants';
 
 const DEFAULT_SETTINGS: MoodTrackerSettings = {
 	sliders: [
-		{ id: 'mood', name: 'Mood', minLabel: 'Very unpleasant', maxLabel: 'Pleasant', color: 'linear-gradient(to right, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)' }
+		{ id: 'mood', name: 'Mood', minLabel: 'Very unpleasant', maxLabel: 'Pleasant', color: 'linear-gradient(to right, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)', defaultValue: 5, reversed: false, max: 10 }
 	],
 	textBlocks: [
 		{ id: 'gratitude', name: 'Gratitude', prompts: "What are you grateful for today?\nWhat made you smile today?\nWhat is one small win you had today?"
@@ -34,90 +34,7 @@ class MoodTrackerSettingTab extends PluginSettingTab {
 			.setName('Mood tracker')
 			.setHeading();
 
-		new Setting(containerEl)
-			.setName('Emotion view mode')
-			.setDesc('Compact uses an expansion toggle; Grid shows all emotions at once.')
-			.addDropdown(dropdown => dropdown
-				.addOption('compact', 'Compact')
-				.addOption('grid', 'Grid')
-				.setValue(this.plugin.settings.emotionViewMode)
-				.onChange(async (value: 'compact' | 'grid') => {
-					this.plugin.settings.emotionViewMode = value;
-					await this.plugin.saveSettings();
-				}));
-
-		containerEl.createEl('h3', { text: 'Emotion Wheel' });
-		this.plugin.settings.emotionWheel.forEach((parent, pIndex) => {
-			const s = new Setting(containerEl)
-				.setName(`Category: ${parent.label}`)
-				.addText(text => text
-					.setValue(parent.label)
-					.onChange(async (val) => {
-						parent.label = val;
-						await this.plugin.saveSettings();
-					}))
-				.addButton(btn => btn
-					.setButtonText('Remove Category')
-					.setWarning()
-					.onClick(async () => {
-						this.plugin.settings.emotionWheel.splice(pIndex, 1);
-						await this.plugin.saveSettings();
-						this.display();
-					}));
-			
-			const subContainer = containerEl.createDiv({ cls: 'mood-tracker-settings-subs' });
-			subContainer.style.paddingLeft = '20px';
-			subContainer.style.marginBottom = '10px';
-
-			parent.subEmotions?.forEach((sub, sIndex) => {
-				const subSetting = new Setting(subContainer)
-					.setName(`Emotion: ${sub.label}`)
-					.addText(text => text
-						.setValue(sub.label)
-						.onChange(async (val) => {
-							sub.label = val;
-							await this.plugin.saveSettings();
-						}))
-					.addButton(btn => btn
-						.setIcon('trash')
-						.setWarning()
-						.onClick(async () => {
-							parent.subEmotions?.splice(sIndex, 1);
-							await this.plugin.saveSettings();
-							this.display();
-						}));
-			});
-
-			new Setting(subContainer)
-				.addButton(btn => btn
-					.setButtonText(`Add Emotion to ${parent.label}`)
-					.onClick(async () => {
-						if (!parent.subEmotions) parent.subEmotions = [];
-						parent.subEmotions.push({
-							id: `emo-${Date.now()}`,
-							label: 'New Emotion',
-							type: parent.type
-						});
-						await this.plugin.saveSettings();
-						this.display();
-					}));
-		});
-
-		new Setting(containerEl)
-			.addButton(btn => btn
-				.setButtonText('Add Category')
-				.setCta()
-				.onClick(async () => {
-					this.plugin.settings.emotionWheel.push({
-						id: `cat-${Date.now()}`,
-						label: 'New Category',
-						type: 'neutral',
-						subEmotions: []
-					});
-					await this.plugin.saveSettings();
-					this.display();
-				}));
-
+		// --- Sliders ---
 		containerEl.createEl('h3', { text: 'Sliders' });
 		this.plugin.settings.sliders.forEach((slider, index) => {
 			const s = new Setting(containerEl)
@@ -137,6 +54,36 @@ class MoodTrackerSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 						this.display();
 					}));
+			
+			new Setting(containerEl)
+				.setName('Range and defaults')
+				.addText(text => text
+					.setPlaceholder('Max value (default 10)')
+					.setValue(String(slider.max || 10))
+					.onChange(async (val) => {
+						slider.max = parseInt(val) || 10;
+						await this.plugin.saveSettings();
+					}))
+				.addText(text => text
+					.setPlaceholder('Default value')
+					.setValue(String(slider.defaultValue ?? 5))
+					.onChange(async (val) => {
+						slider.defaultValue = parseInt(val) || 0;
+						await this.plugin.saveSettings();
+					}));
+
+			new Setting(containerEl)
+				.setName('Reverse color direction')
+				.setDesc('If enabled, lower values will be green and higher values will be red.')
+				.addToggle(toggle => toggle
+					.setValue(slider.reversed || false)
+					.onChange(async (val) => {
+						slider.reversed = val;
+						slider.color = val 
+							? 'linear-gradient(to left, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)' 
+							: 'linear-gradient(to right, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)';
+						await this.plugin.saveSettings();
+					}));
 		});
 
 		new Setting(containerEl)
@@ -149,12 +96,16 @@ class MoodTrackerSettingTab extends PluginSettingTab {
 						name: 'New Metric',
 						minLabel: 'Low',
 						maxLabel: 'High',
-						color: 'linear-gradient(to right, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)'
+						color: 'linear-gradient(to right, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)',
+						defaultValue: 5,
+						reversed: false,
+						max: 10
 					});
 					await this.plugin.saveSettings();
 					this.display();
 				}));
 
+		// --- Text Blocks ---
 		containerEl.createEl('h3', { text: 'Text blocks' });
 		this.plugin.settings.textBlocks.forEach((block, index) => {
 			const s = new Setting(containerEl)
@@ -200,6 +151,75 @@ class MoodTrackerSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 					this.display();
 				}));
+
+		// --- Emotion Wheel ---
+		containerEl.createEl('h3', { text: 'Emotion Wheel' });
+		new Setting(containerEl)
+			.setName('Emotion view mode')
+			.setDesc('Compact uses an expansion toggle; Grid shows all emotions at once.')
+			.addDropdown(dropdown => dropdown
+				.addOption('compact', 'Compact')
+				.addOption('grid', 'Grid')
+				.setValue(this.plugin.settings.emotionViewMode)
+				.onChange(async (value: 'compact' | 'grid') => {
+					this.plugin.settings.emotionViewMode = value;
+					await this.plugin.saveSettings();
+				}));
+
+		this.plugin.settings.emotionWheel.forEach((parent, pIndex) => {
+			const s = new Setting(containerEl)
+				.setName(`Category: ${parent.label}`)
+				.setDesc('Separate emotions with commas.')
+				.addText(text => text
+					.setPlaceholder('Category label')
+					.setValue(parent.label)
+					.onChange(async (val) => {
+						parent.label = val;
+						await this.plugin.saveSettings();
+					}))
+				.addButton(btn => btn
+					.setButtonText('Remove Category')
+					.setWarning()
+					.onClick(async () => {
+						this.plugin.settings.emotionWheel.splice(pIndex, 1);
+						await this.plugin.saveSettings();
+						this.display();
+					}));
+			
+			const emotionsStr = parent.subEmotions?.map(e => e.label).join(', ') || '';
+			
+			new Setting(containerEl)
+				.addTextArea(text => text
+					.setPlaceholder('Happy, Excited, Relaxed...')
+					.setValue(emotionsStr)
+					.onChange(async (val) => {
+						const labels = val.split(',').map(s => s.trim()).filter(s => s.length > 0);
+						parent.subEmotions = labels.map(label => {
+							const existing = parent.subEmotions?.find(e => e.label === label);
+							return existing || {
+								id: `emo-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+								label: label,
+								type: parent.type
+							};
+						});
+						await this.plugin.saveSettings();
+					}));
+		});
+
+		new Setting(containerEl)
+			.addButton(btn => btn
+				.setButtonText('Add Category')
+				.setCta()
+				.onClick(async () => {
+					this.plugin.settings.emotionWheel.push({
+						id: `cat-${Date.now()}`,
+						label: 'New Category',
+						type: 'neutral',
+						subEmotions: []
+					});
+					await this.plugin.saveSettings();
+					this.display();
+				}));
 	}
 }
 
@@ -237,17 +257,23 @@ class MoodTrackerItemView extends ItemView {
 	}
 
 	onOpen() {
+        this.refresh();
+        this.plugin.registerEvent(this.app.workspace.on('mood-tracker:refresh' as any, () => this.refresh()));
+        return Promise.resolve();
+	}
+
+    refresh() {
 		const container = this.containerEl.children[1] as HTMLElement;
 		container.empty();
 		container.addClass('mood-tracker-plugin-view');
 
 		this.root = createRoot(container);
 		this.root.render(React.createElement(MoodTrackerView, { 
+            key: Date.now(), // Force refresh
             app: this.app, 
             settings: this.plugin.settings
         }));
-        return Promise.resolve();
-	}
+    }
 
 	onClose() {
 		this.root?.unmount();
@@ -295,14 +321,21 @@ export default class ObsidianMoodPlugin extends Plugin {
 			const file = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
 			const tFile = file instanceof TFile ? file : undefined;
 			
-            const component = React.createElement(MoodTrackerView, { 
-                app: this.app, 
-                file: tFile,
-                settings: this.settings
-            });
+            const render = () => {
+                const component = React.createElement(MoodTrackerView, { 
+                    key: Date.now(),
+                    app: this.app, 
+                    file: tFile,
+                    settings: this.settings
+                });
+                ctx.addChild(new ReactPortal(el, component));
+            };
 
-            // Use Lifecycle Helper to ensure cleanup
-            ctx.addChild(new ReactPortal(el, component));
+            render();
+            this.registerEvent(this.app.workspace.on('mood-tracker:refresh' as any, () => {
+                el.empty();
+                render();
+            }));
 		});
 	}
 
@@ -312,6 +345,7 @@ export default class ObsidianMoodPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+        this.app.workspace.trigger('mood-tracker:refresh');
 	}
 
     insertTrackerIntoCurrentNote() {

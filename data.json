@@ -1,0 +1,279 @@
+{
+  "sliders": [
+    {
+      "id": "mood",
+      "name": "Mood",
+      "minLabel": "Very unpleasant",
+      "maxLabel": "Pleasant",
+      "color": "linear-gradient(to right, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)"
+    },
+    {
+      "id": "slider-1771805721154",
+      "name": "Tiredness",
+      "minLabel": "Low",
+      "maxLabel": "High",
+      "color": "linear-gradient(to left, #ff4d4d 0%, #ffcc00 50%, #4cd964 100%)",
+      "defaultValue": 0,
+      "reversed": true
+    }
+  ],
+  "textBlocks": [
+    {
+      "id": "gratitude",
+      "name": "Gratitude",
+      "prompts": "What are you grateful for today?\nWhat made you smile today?\nWhat is one small win you had today?"
+    }
+  ],
+  "emotionViewMode": "grid",
+  "emotionWheel": [
+    {
+      "id": "joy",
+      "label": "Happy",
+      "type": "joy",
+      "subEmotions": [
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "joy"
+        },
+        {
+          "id": "accepted",
+          "label": "Accepted",
+          "type": "joy"
+        },
+        {
+          "id": "peaceful",
+          "label": "Peaceful",
+          "type": "joy"
+        },
+        {
+          "id": "aroused",
+          "label": "Aroused",
+          "type": "joy"
+        },
+        {
+          "id": "free",
+          "label": "Free",
+          "type": "joy"
+        },
+        {
+          "id": "curious",
+          "label": "Curious",
+          "type": "joy"
+        },
+        {
+          "id": "confident",
+          "label": "Confident",
+          "type": "joy"
+        },
+        {
+          "id": "valued",
+          "label": "Valued",
+          "type": "joy"
+        },
+        {
+          "id": "courageous",
+          "label": "Courageous",
+          "type": "joy"
+        },
+        {
+          "id": "intimate",
+          "label": "Intimate",
+          "type": "joy"
+        },
+        {
+          "id": "hopeful",
+          "label": "Hopeful",
+          "type": "joy"
+        }
+      ]
+    },
+    {
+      "id": "sadness",
+      "label": "Sad",
+      "type": "sadness",
+      "subEmotions": [
+        {
+          "id": "lonely",
+          "label": "Lonely",
+          "type": "sadness"
+        },
+        {
+          "id": "vulnerable",
+          "label": "Vulnerable",
+          "type": "sadness"
+        },
+        {
+          "id": "guilty",
+          "label": "Guilty",
+          "type": "sadness"
+        },
+        {
+          "id": "hurt",
+          "label": "Hurt",
+          "type": "sadness"
+        },
+        {
+          "id": "embarrassed",
+          "label": "Embarrassed",
+          "type": "sadness"
+        },
+        {
+          "id": "disappointed",
+          "label": "Disappointed",
+          "type": "sadness"
+        },
+        {
+          "id": "ashamed",
+          "label": "Ashamed",
+          "type": "sadness"
+        }
+      ]
+    },
+    {
+      "id": "anger",
+      "label": "Angry",
+      "type": "anger",
+      "subEmotions": [
+        {
+          "id": "humiliated",
+          "label": "Humiliated",
+          "type": "anger"
+        },
+        {
+          "id": "aggressive",
+          "label": "Aggressive",
+          "type": "anger"
+        },
+        {
+          "id": "distant",
+          "label": "Distant",
+          "type": "anger"
+        },
+        {
+          "id": "resentful",
+          "label": "Resentful",
+          "type": "anger"
+        },
+        {
+          "id": "disrespected",
+          "label": "Disrespected",
+          "type": "anger"
+        },
+        {
+          "id": "furious",
+          "label": "Furious",
+          "type": "anger"
+        },
+        {
+          "id": "jealous",
+          "label": "Jealous",
+          "type": "anger"
+        },
+        {
+          "id": "provoked",
+          "label": "Provoked",
+          "type": "anger"
+        },
+        {
+          "id": "numb",
+          "label": "Numb",
+          "type": "anger"
+        }
+      ]
+    },
+    {
+      "id": "fear",
+      "label": "Fearful",
+      "type": "fear",
+      "subEmotions": [
+        {
+          "id": "insecure",
+          "label": "Insecure",
+          "type": "fear"
+        },
+        {
+          "id": "rejected",
+          "label": "Rejected",
+          "type": "fear"
+        },
+        {
+          "id": "threatened",
+          "label": "Threatened",
+          "type": "fear"
+        },
+        {
+          "id": "helpless",
+          "label": "Helpless",
+          "type": "fear"
+        },
+        {
+          "id": "overwhelmed",
+          "label": "Overwhelmed",
+          "type": "fear"
+        },
+        {
+          "id": "worried",
+          "label": "Worried",
+          "type": "fear"
+        },
+        {
+          "id": "worthless",
+          "label": "Worthless",
+          "type": "fear"
+        }
+      ]
+    },
+    {
+      "id": "disgust",
+      "label": "Disgusted",
+      "type": "disgust",
+      "subEmotions": [
+        {
+          "id": "judgemental",
+          "label": "Judgemental",
+          "type": "disgust"
+        },
+        {
+          "id": "hesitant",
+          "label": "Hesitant",
+          "type": "disgust"
+        }
+      ]
+    },
+    {
+      "id": "surprise",
+      "label": "Surprised",
+      "type": "surprise",
+      "subEmotions": [
+        {
+          "id": "confused",
+          "label": "Confused",
+          "type": "surprise"
+        },
+        {
+          "id": "startled",
+          "label": "Startled",
+          "type": "surprise"
+        },
+        {
+          "id": "energetic",
+          "label": "Energetic",
+          "type": "surprise"
+        }
+      ]
+    },
+    {
+      "id": "power",
+      "label": "Powerful",
+      "type": "power",
+      "subEmotions": [
+        {
+          "id": "focused",
+          "label": "Focused",
+          "type": "power"
+        }
+      ]
+    }
+  ]
+}

@@ -12,87 +12,186 @@ interface MoodTrackerProps {
 const TrendsView = ({ app, settings, dataService }: { app: App, settings: MoodTrackerSettings, dataService: DataService }) => {
     const [history, setHistory] = useState<{date: string, data: DayData}[]>([]);
     const [loading, setLoading] = useState(true);
+    const [hoveredDay, setHoveredDay] = useState<{date: string, data: DayData} | null>(null);
 
     useEffect(() => {
-        dataService.getHistory(settings, 7).then(h => {
+        // Fetch 30 days for the trend line
+        dataService.getHistory(settings, 30).then(h => {
             setHistory(h);
             setLoading(false);
         });
     }, [settings, dataService]);
 
-    if (loading) return <div className="loading-spinner">Loading trends...</div>;
-    if (history.length === 0) return <div className="no-data">No data for the last 7 days.</div>;
+    if (loading) return <div className="loading-spinner">Loading analysis...</div>;
+    if (history.length === 0) return <div className="no-data">No data recorded yet.</div>;
 
-    const renderLineChart = (sliderId: string, name: string, color: string) => {
-        const points = history.map((h, i) => {
-            const val = h.data.sliders[sliderId] || 5;
-            const x = (i / (history.length - 1)) * 100;
-            const y = 100 - (val / 10) * 100;
-            return `${x},${y}`;
-        }).join(' ');
+    const sliderId = settings.sliders[0]?.id || 'mood';
+    const sliderConfig = settings.sliders[0];
+    const max = sliderConfig?.max || 10;
+    
+    // Sort chronological for chart
+    const chronoHistory = [...history].reverse();
+    const recent = history.slice(0, 7); 
+    const previous = history.length > 7 ? history.slice(7, 14) : [];
 
-        return (
-            <div key={sliderId} className="trend-chart-container">
-                <h3>{name}</h3>
-                <div className="svg-wrapper">
-                    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <polyline
-                            fill="none"
-                            stroke="var(--interactive-accent)"
-                            strokeWidth="2"
-                            points={points}
-                        />
-                    </svg>
-                </div>
-                <div className="chart-labels">
-                    {history.map(h => (
-                        <span key={h.date}>{h.date.split('-').slice(2)}</span>
-                    ))}
-                </div>
-            </div>
-        );
+    const calcAvg = (days: {data: DayData}[]) => {
+        if (days.length === 0) return 0;
+        const sum = days.reduce((acc, curr) => acc + (curr.data.sliders[sliderId] ?? (settings.sliders[0]?.defaultValue ?? 5)), 0);
+        return sum / days.length;
     };
 
-    // Aggregate emotions
-    const emotionCounts: Record<string, number> = {};
-    history.forEach(h => {
-        h.data.emotions.forEach(e => {
-            emotionCounts[e] = (emotionCounts[e] || 0) + 1;
-        });
+    const avgRecent = calcAvg(recent);
+    const avgPrev = calcAvg(previous);
+    const diff = avgRecent - avgPrev;
+    const diffPercent = previous.length > 0 ? ((diff / (avgPrev || 1)) * 100).toFixed(0) : '0';
+
+    const allEmotionsFromSettings = settings.emotionWheel.flatMap(w => w.subEmotions ? [w, ...w.subEmotions] : [w]);
+
+    const formatDate = (dateStr: string) => {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    };
+
+    const chartCoords = chronoHistory.map((h, i) => {
+        const val = h.data.sliders[sliderId] ?? (sliderConfig?.defaultValue ?? 5);
+        const x = (i / Math.max(1, chronoHistory.length - 1)) * 100;
+        const y = 100 - (val / max) * 100;
+        return { x, y, val, original: h };
     });
 
-    const allEmotionsFromSettings = settings.emotionWheel.reduce((acc, curr) => {
-        acc.push(curr);
-        if (curr.subEmotions) acc.push(...curr.subEmotions);
-        return acc;
-    }, [] as any[]);
-
-    const sortedEmotions = Object.entries(emotionCounts)
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 5);
+    const points = chartCoords.map(c => `${c.x},${c.y}`).join(' ');
 
     return (
-        <div className="trends-view">
-            <div className="card trends-card">
-                <h2>Slider Trends (Last 7 Days)</h2>
-                {settings.sliders.map(s => renderLineChart(s.id, s.name, s.color))}
+        <div className="trends-dashboard">
+            <div className="insight-hero card">
+                <div className="insight-stat">
+                    <span className="insight-val">{avgRecent.toFixed(1)}<span style={{fontSize: '14px', color: 'var(--text-muted)'}}>/ {max}</span></span>
+                    <span className="insight-label">7-Day Avg {settings.sliders[0]?.name || 'Mood'}</span>
+                </div>
+                {previous.length > 0 && (
+                    <div className="insight-trend">
+                        <span style={{ color: diff >= 0 ? 'var(--color-green)' : 'var(--color-red)' }}>
+                            {diff > 0 ? '↑' : (diff < 0 ? '↓' : '')} {Math.abs(Number(diffPercent))}%
+                        </span>
+                        <small>vs previous</small>
+                    </div>
+                )}
             </div>
 
-            <div className="card trends-card">
-                <h2>Common Emotions</h2>
-                <div className="emotions-frequency">
-                    {sortedEmotions.map(([id, count]) => {
-                        const emotion = allEmotionsFromSettings.find(e => e.id === id);
-                        return (
-                            <div key={id} className="emotion-freq-row">
-                                <span className="emotion-label">{emotion?.label || id}</span>
-                                <div className="freq-bar-wrapper">
-                                    <div 
-                                        className="freq-bar" 
-                                        style={{ width: `${(count / history.length) * 100}%` }}
-                                    ></div>
+            <div className="card trend-chart-card">
+                <h3 className="timeline-title" style={{borderBottom: 'none', paddingLeft: 0}}>30-Day Trend</h3>
+                <div className="trend-chart-layout">
+                    <div className="y-axis-labels">
+                        <span>{max}</span>
+                        <span>{Math.floor(max/2)}</span>
+                        <span>0</span>
+                    </div>
+                    <div className="mini-chart-container" onMouseLeave={() => setHoveredDay(null)}>
+                        <svg viewBox="0 -5 100 110" preserveAspectRatio="none" style={{width: '100%', height: '80px', overflow: 'visible'}}>
+                            {/* Grid lines */}
+                            <line x1="0" y1="0" x2="100" y2="0" stroke="var(--background-modifier-border)" strokeWidth="0.5" strokeDasharray="2,2"/>
+                            <line x1="0" y1="50" x2="100" y2="50" stroke="var(--background-modifier-border)" strokeWidth="0.5" strokeDasharray="2,2"/>
+                            <line x1="0" y1="100" x2="100" y2="100" stroke="var(--background-modifier-border)" strokeWidth="0.5" strokeDasharray="2,2"/>
+                            
+                            <polyline
+                                fill="none"
+                                stroke="var(--interactive-accent)"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                points={points}
+                                style={{ opacity: 0.8 }}
+                            />
+                            {chartCoords.map((c, i) => (
+                                <g 
+                                    key={i} 
+                                    onMouseEnter={() => setHoveredDay(c.original)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    {/* Invisible larger hit area for easier hovering */}
+                                    <circle cx={c.x} cy={c.y} r="10" fill="transparent" />
+                                    <path 
+                                        d={`M ${c.x},${c.y} L ${c.x},${c.y}`} 
+                                        stroke={hoveredDay?.date === c.original.date ? "var(--text-accent)" : "var(--interactive-accent)"}
+                                        strokeWidth={hoveredDay?.date === c.original.date ? "10" : "6"}
+                                        strokeLinecap="round" 
+                                        vectorEffect="non-scaling-stroke" 
+                                        style={{ transition: 'stroke-width 0.1s ease' }}
+                                    />
+                                </g>
+                            ))}
+                        </svg>
+                        <div className="chart-endpoints">
+                            <span>{chronoHistory[0].date.slice(5)}</span>
+                            <span>{chronoHistory[chronoHistory.length-1].date.slice(5)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {hoveredDay && (
+                    <div className="chart-tooltip card">
+                        <div className="tooltip-header">
+                            <strong>{formatDate(hoveredDay.date)}</strong>
+                            <span className="tooltip-score">{hoveredDay.data.sliders[sliderId] ?? sliderConfig?.defaultValue}/{max}</span>
+                        </div>
+                        {hoveredDay.data.emotions.length > 0 && (
+                            <div className="tooltip-emotions">
+                                {hoveredDay.data.emotions.map(eId => {
+                                    const def = allEmotionsFromSettings.find(w => w.id === eId);
+                                    const eType = def?.type || 'neutral';
+                                    return <span key={eId} className={`timeline-chip tiny ${eType}`}>{def?.label || eId}</span>
+                                })}
+                            </div>
+                        )}
+                        {settings.textBlocks.map(tb => {
+                            const text = hoveredDay.data.textBlocks[tb.id];
+                            if (!text) return null;
+                            return (
+                                <div key={tb.id} className="tooltip-text">
+                                    <strong>{tb.name}:</strong> {text}
                                 </div>
-                                <span className="freq-count">{count}</span>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            <div className="card timeline-card">
+                <h3 className="timeline-title">Recent History</h3>
+                <div className="vertical-timeline">
+                    {history.slice(0, 7).map(day => {
+                        const val = day.data.sliders[sliderId] ?? (settings.sliders[0]?.defaultValue ?? 5);
+                        
+                        return (
+                            <div key={day.date} className="timeline-day">
+                                <div className="timeline-header">
+                                    <div className="timeline-date">{formatDate(day.date)}</div>
+                                    <div className="timeline-score">{val}/{max}</div>
+                                </div>
+                                
+                                {day.data.emotions.length > 0 && (
+                                    <div className="timeline-emotions">
+                                        {day.data.emotions.map(eId => {
+                                            const def = allEmotionsFromSettings.find(w => w.id === eId);
+                                            const eType = def?.type || 'neutral';
+                                            return (
+                                                <span key={eId} className={`timeline-chip ${eType}`}>
+                                                    {def?.label || eId}
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                                
+                                {settings.textBlocks.map(tb => {
+                                    const text = day.data.textBlocks[tb.id];
+                                    if (!text) return null;
+                                    return (
+                                        <div key={tb.id} className="timeline-text">
+                                            <strong>{tb.name}:</strong> {text}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         );
                     })}
@@ -230,15 +329,15 @@ export const MoodTrackerView = ({ app, file, settings }: MoodTrackerProps) => {
                 <div key={slider.id} className="card mood-card">
                     <div className="card-header">
                         <h2>{slider.name}</h2>
-                        <span className="mood-value">{data.sliders[slider.id] || 5}/10</span>
+                        <span className="mood-value">{data.sliders[slider.id] ?? slider.defaultValue}/{slider.max || 10}</span>
                     </div>
                     <div className="slider-container">
                         <input 
                             type="range" 
-                            min="1" 
-                            max="10" 
+                            min="0" 
+                            max={slider.max || 10} 
                             step="1"
-                            value={data.sliders[slider.id] || 5}
+                            value={data.sliders[slider.id] ?? slider.defaultValue}
                             onChange={(e) => updateSlider(slider.id, parseInt(e.target.value))}
                             className="mood-slider"
                             style={{

@@ -6,6 +6,9 @@ export interface SliderConfig {
 	minLabel: string;
 	maxLabel: string;
 	color: string;
+	defaultValue: number;
+	reversed: boolean;
+	max: number;
 }
 
 export interface TextBlockConfig {
@@ -60,7 +63,7 @@ export class DataService {
         };
 
         // Initialize with default values from settings
-        settings.sliders.forEach(s => defaultData.sliders[s.id] = 5);
+        settings.sliders.forEach(s => defaultData.sliders[s.id] = s.defaultValue ?? 5);
         settings.textBlocks.forEach(t => defaultData.textBlocks[t.id] = "");
 
         if (!(targetFile instanceof TFile)) {

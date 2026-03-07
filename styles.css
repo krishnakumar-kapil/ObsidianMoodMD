@@ -118,12 +118,12 @@
 }
 
 .emotion-chip {
-    padding: 0px 0px;
-    border-radius: 30px;
+    padding: 2px 2px;
+    border-radius: 12px;
     border: none;
     background-color: var(--background-primary);
     color: var(--text-normal);
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.1s ease;
@@ -135,13 +135,12 @@
 .emotion-chip.parent {
     font-weight: 800;
     background-color: var(--background-secondary-alt);
-    margin-right: 2px;
+    margin-right: 4px;
     border: 1px solid var(--background-modifier-border-stronger);
 }
 
 .emotion-chip.sub {
     font-weight: 500;
-    font-size: 14px;
 }
 
 .emotion-chip:hover {
@@ -153,14 +152,16 @@
     border: none !important;
 }
 
-.emotion-chip.joy.selected { background-color: #248a3d !important; color: white !important; } /* Darker Green */
-.emotion-chip.sadness.selected { background-color: #007aff !important; } /* Blue */
-.emotion-chip.anger.selected { background-color: #ff3b30 !important; } /* Red */
-.emotion-chip.fear.selected { background-color: #af52de !important; } /* Purple */
-.emotion-chip.disgust.selected { background-color: #ffcc00 !important; color: black !important; } /* Yellow */
-.emotion-chip.surprise.selected { background-color: #5856d6 !important; } /* Indigo */
-.emotion-chip.power.selected { background-color: #c35400 !important; } /* Darker Orange */
+/* Smart Colors */
+.emotion-chip.joy.selected { background-color: #248a3d !important; color: white !important; }
+.emotion-chip.sadness.selected { background-color: #007aff !important; }
+.emotion-chip.anger.selected { background-color: #ff3b30 !important; }
+.emotion-chip.fear.selected { background-color: #af52de !important; }
+.emotion-chip.disgust.selected { background-color: #ffcc00 !important; color: black !important; }
+.emotion-chip.surprise.selected { background-color: #5856d6 !important; }
+.emotion-chip.power.selected { background-color: #c35400 !important; }
 
+/* Textarea */
 textarea {
   width: 100%;
   padding: 8px;
@@ -208,74 +209,250 @@ textarea {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* Trends View */
-.trends-view {
+.view-switcher.sub-nav {
+    margin-top: -4px;
+    margin-bottom: 12px;
+    background: transparent;
+    border: 1px solid var(--background-modifier-border);
+}
+
+.view-switcher.sub-nav button.active {
+    background: var(--interactive-accent);
+    color: white;
+}
+
+/* --- Trends Dashboard --- */
+
+.trends-dashboard {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
-.trend-chart-container {
-    margin-bottom: 16px;
-}
-
-.trend-chart-container h3 {
-    font-size: 12px;
-    margin-bottom: 8px;
-    color: var(--text-muted);
-}
-
-.svg-wrapper {
-    height: 60px;
-    width: 100%;
-    background: var(--background-primary);
-    border-radius: 4px;
-    padding: 4px;
-}
-
-.chart-labels {
+.insight-hero {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: var(--background-secondary);
+    border-left: 4px solid var(--interactive-accent);
+}
+
+.insight-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.insight-val {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text-normal);
+}
+
+.insight-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
     margin-top: 4px;
-    font-size: 9px;
+    font-weight: 600;
+}
+
+.insight-trend {
+    text-align: right;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+}
+
+.insight-trend small {
+    font-size: 10px;
+    font-weight: 500;
     color: var(--text-faint);
 }
 
-.emotions-frequency {
+/* Trend Chart Card */
+.trend-chart-card {
+    padding: 12px 16px;
+    border: 1px solid var(--interactive-accent); /* Make the box stand out more */
+    background-color: var(--background-primary-alt);
+}
+
+.trend-chart-layout {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.y-axis-labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text-muted); /* More visible than faint */
+    font-weight: 700;
+    padding: 4px 0;
+    text-align: right;
+    width: 15px;
+}
+
+.mini-chart-container {
+    flex: 1;
+    padding: 8px; /* Slightly more internal padding */
+    background: var(--background-primary);
+    border-radius: 4px;
+    border: 1px solid var(--background-modifier-border-stronger);
+}
+
+.chart-endpoints {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 9px;
+    color: var(--text-faint);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Tooltip */
+.chart-tooltip {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--background-secondary-alt);
+    border: 1px solid var(--interactive-accent);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tooltip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.tooltip-score {
+    font-weight: 800;
+    color: var(--interactive-accent);
+}
+
+.tooltip-emotions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.timeline-chip.tiny {
+    padding: 1px 6px;
+    font-size: 9px;
+}
+
+.tooltip-text {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    padding: 6px;
+    background: var(--background-primary);
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+/* Vertical Timeline */
+.timeline-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.timeline-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 12px 16px;
+    margin: 0;
+    border-bottom: 1px solid var(--background-modifier-border);
+    background: var(--background-secondary-alt);
+}
+
+.vertical-timeline {
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-day {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.emotion-freq-row {
+.timeline-day:last-child {
+    border-bottom: none;
+}
+
+.timeline-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
 }
 
-.emotion-label {
-    width: 80px;
-    font-size: 11px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.timeline-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-normal);
 }
 
-.freq-bar-wrapper {
-    flex: 1;
-    height: 8px;
-    background: var(--background-primary);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.freq-bar {
-    height: 100%;
-    background: var(--interactive-accent);
-}
-
-.freq-count {
-    font-size: 11px;
+.timeline-score {
+    font-size: 12px;
     font-weight: 700;
-    width: 20px;
+    color: var(--interactive-accent);
+    background: var(--background-secondary);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.timeline-emotions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.timeline-chip {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Re-use smart colors for timeline chips */
+.timeline-chip.joy { background-color: #248a3d; }
+.timeline-chip.sadness { background-color: #007aff; }
+.timeline-chip.anger { background-color: #ff3b30; }
+.timeline-chip.fear { background-color: #af52de; }
+.timeline-chip.disgust { background-color: #ffcc00; color: black; }
+.timeline-chip.surprise { background-color: #5856d6; }
+.timeline-chip.power { background-color: #c35400; }
+.timeline-chip.neutral { background-color: var(--background-modifier-border-stronger); }
+
+.timeline-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    background: var(--background-primary);
+    padding: 8px;
+    border-radius: 6px;
+    border-left: 2px solid var(--background-modifier-border-stronger);
+}
+
+.timeline-text strong {
+    color: var(--text-normal);
 }
